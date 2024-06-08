@@ -164,6 +164,9 @@ static int lpm_cpu_qos_notify(struct notifier_block *nb,
 {
 	int cpu = nb - dev_pm_qos_nb;
 
+	if (sleep_disabled)
+		return NOTIFY_OK;
+
 	preempt_disable();
 	if (cpu != smp_processor_id() && cpu_online(cpu) &&
 	    !check_cpu_isolated(cpu))
@@ -641,9 +644,6 @@ static inline bool lpm_disallowed(int cpu, struct lpm_cpu *pm_cpu)
 
 	if (check_cpu_isolated(cpu))
 		goto out;
-
-	if (sleep_disabled)
-		return true;
 
 	bias_time = sched_lpm_disallowed_time(cpu);
 	if (bias_time) {
@@ -1374,7 +1374,7 @@ static int lpm_cpuidle_select(struct cpuidle_driver *drv,
 	if (duration <= TICK_NSEC)
 		*stop_tick = false;
 
-	if (!cpu)
+	if (!cpu || sleep_disabled)
 		return 0;
 
 	return cpu_power_select(dev, cpu, ktime_to_us(duration));
@@ -1440,6 +1440,11 @@ static int lpm_cpuidle_enter(struct cpuidle_device *dev,
 	ktime_t start = ktime_get();
 	uint64_t start_time = ktime_to_ns(start), end_time;
 	int ret = -EBUSY;
+
+	if (sleep_disabled) {
+		cpu_do_idle();
+		return 0;
+	}
 
 	/* Read the timer from the CPU that is entering idle */
 	per_cpu(next_hrtimer, dev->cpu) = tick_nohz_get_next_hrtimer();
