@@ -116,6 +116,7 @@ obj-$(CONFIG_TOUCHSCREEN_SYNAPTICS_TCM)	+= synaptics_tcm/
 obj-$(CONFIG_TOUCHSCREEN_SYNAPTICS_DSX) += synaptics_dsx/
 obj-$(CONFIG_TOUCHSCREEN_NT36XXX)	+= nt36xxx/
 obj-$(CONFIG_TOUCHSCREEN_FTS)	+= FT3519T/
+obj-$(CONFIG_TOUCHSCREEN_COMMON)	+= tp_common.o
 
 #BSP.TP - 2022.6.24 - Add for palm senser - Start Modify
 obj-$(CONFIG_TOUCHSCREEN_XIAOMI_TOUCHFEATURE) += xiaomi/
