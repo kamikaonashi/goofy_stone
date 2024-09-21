@@ -1856,6 +1856,13 @@ config BUILD_ARM64_UNCOMPRESSED_KERNEL
 	  certain situations.
 endchoice
 
+config BOOT_INFO
+	bool "Boot information from bootloader"
+	default y
+	help
+	  On embedded linux device, we try to collect more information from
+	  bootloader to kernel. eg. powerup reason.
+
 config HQ_QGKI
 	bool "Is QGKI build"
 	default n

@@ -160,6 +160,8 @@ static bool get_dload_mode(void)
 	return dload_mode_enabled;
 }
 
+/* BSP.Security - 2022.8.23 -disable adb reboot edl function --satrt */
+#if 0
 static void enable_emergency_dload_mode(void)
 {
 	if (emergency_dload_mode_addr) {
@@ -182,6 +184,8 @@ static void enable_emergency_dload_mode(void)
 
 	qcom_scm_set_download_mode(SCM_EDLOAD_MODE, tcsr_boot_misc_detect ?: 0);
 }
+#endif
+/* BSP.Security - 2022.8.23 -disable adb reboot edl function --end */
 
 static int dload_set(const char *val, const struct kernel_param *kp)
 {
@@ -431,7 +435,13 @@ static void msm_restart_prepare(const char *cmd)
 	else
 		qpnp_pon_system_pwr_off(PON_POWER_OFF_HARD_RESET);
 
+#ifdef CONFIG_HQ_QGKI
+	if (in_panic) {
+		qpnp_pon_set_restart_reason(PON_RESTART_REASON_PANIC);
+	} else if (cmd != NULL) {
+#else
 	if (cmd != NULL) {
+#endif
 		if (!strncmp(cmd, "bootloader", 10)) {
 			reason = PON_RESTART_REASON_BOOTLOADER;
 			__raw_writel(0x77665500, restart_reason);
@@ -459,8 +469,11 @@ static void msm_restart_prepare(const char *cmd)
 				__raw_writel(0x6f656d00 | (code & 0xff),
 					     restart_reason);
 		} else if (!strncmp(cmd, "edl", 3)) {
-			enable_emergency_dload_mode();
+			//enable_emergency_dload_mode();
 		} else {
+			#ifdef CONFIG_HQ_QGKI
+			qpnp_pon_set_restart_reason(PON_RESTART_REASON_NORMAL);
+			#endif
 			__raw_writel(0x77665501, restart_reason);
 		}
 
@@ -469,6 +482,11 @@ static void msm_restart_prepare(const char *cmd)
 		else
 			qpnp_pon_set_restart_reason(
 				(enum pon_restart_reason)reason);
+#ifdef CONFIG_HQ_QGKI
+	} else {
+		qpnp_pon_set_restart_reason(PON_RESTART_REASON_NORMAL);
+		__raw_writel(0x77665501, restart_reason);
+#endif
 	}
 
 	/*outer_flush_all is not supported by 64bit kernel*/
