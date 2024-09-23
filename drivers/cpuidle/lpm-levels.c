@@ -131,7 +131,7 @@ static struct notifier_block drm_notifier = {
 	.notifier_call = lpm_drm_panel_notify,
 };
 
-extern struct drm_panel *goodix_get_panel(void);
+extern struct drm_panel *fts_get_panel(void);
 #else
 static bool sleep_disabled;
 module_param_named(sleep_disabled, sleep_disabled, bool, 0664);
@@ -1764,7 +1764,7 @@ static int lpm_probe(struct platform_device *pdev)
 	struct hrtimer *cpu_histtimer;
 	struct kobject *module_kobj = NULL;
 #ifdef CONFIG_DRM_PANEL
-	struct drm_panel *active_panel = goodix_get_panel();
+	struct drm_panel *active_panel = fts_get_panel();
 
 	if (!active_panel)
 		return -EPROBE_DEFER;

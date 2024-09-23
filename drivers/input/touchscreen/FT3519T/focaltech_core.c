@@ -1735,6 +1735,11 @@ static int fb_notifier_callback(struct notifier_block *self,
 #elif defined(CONFIG_DRM)
 #if defined(CONFIG_DRM_PANEL)
 static struct drm_panel *active_panel;
+struct drm_panel *fts_get_panel(void)
+{
+	return active_panel;
+}
+EXPORT_SYMBOL(fts_get_panel);
 
 static int drm_check_dt(struct device_node *np)
 {
